@@ -1,6 +1,6 @@
 [project]
 name = "szcore-evaluation"
-version = "0.1.0"
+version = "0.0.1"
 description = "Compare szCORE compliant annotations of EEG datasets of people with epilelpsy."
 authors = [
     { name = "Jonathan Dan", email = "jonathan.dan@epfl.ch" }
