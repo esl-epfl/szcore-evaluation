@@ -97,8 +97,14 @@ def evaluate_dataset(
                 hyp = Annotation(np.zeros_like(ref.mask), ref.fs)
 
             # Compute evaluation
-            sample_score = scoring.SampleScoring(ref, hyp)
-            event_score = scoring.EventScoring(ref, hyp)
+            try:
+                sample_score = scoring.SampleScoring(ref, hyp)
+                event_score = scoring.EventScoring(ref, hyp)
+            except ValueError as e:
+                print(f"Error in {ref_tsv}: {e}")
+                hyp = Annotation(np.zeros_like(ref.mask), ref.fs)
+                sample_score = scoring.SampleScoring(ref, hyp)
+                event_score = scoring.EventScoring(ref, hyp)
 
             # Store results
             sample_results[subject.name] += Result(sample_score)
