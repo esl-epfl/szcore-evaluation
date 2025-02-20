@@ -92,7 +92,11 @@ def evaluate_dataset(
             hyp_tsv = Path(hypothesis) / ref_tsv.relative_to(reference)
             if hyp_tsv.exists():
                 hyp = Annotations.loadTsv(hyp_tsv)
-                hyp = Annotation(hyp.getMask(FS), FS)
+                try: 
+                    hyp = Annotation(hyp.getMask(FS), FS)
+                except IndexError as e:
+                    print(f"Error in {hyp_tsv}: {e}")
+                    hyp = Annotation(np.zeros_like(ref.mask), ref.fs)
             else:
                 hyp = Annotation(np.zeros_like(ref.mask), ref.fs)
 
