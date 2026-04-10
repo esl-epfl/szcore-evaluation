@@ -130,3 +130,63 @@ def test_evaluate_dataset_cumulated(tmp_path):
     assert (tmp_path / "out.json").exists()
     for key in METRICS:
         assert key in result["sample_results"]
+
+
+# ---------------------------------------------------------------------------
+# duration_tolerance tests
+# ---------------------------------------------------------------------------
+
+def test_duration_tolerance_hyp_shorter_within_tolerance(tmp_path):
+    """Hyp file 1 s shorter than ref is zero-padded and scored normally."""
+    make_tsv(tmp_path / "ref" / "sub-001" / "rec.tsv", [(10, 5)], recording_duration=60)
+    make_tsv(tmp_path / "hyp" / "sub-001" / "rec.tsv", [(10, 5)], recording_duration=59)
+
+    result = evaluate_dataset(
+        tmp_path / "ref", tmp_path / "hyp", tmp_path / "out.json",
+        duration_tolerance=1.0,
+    )
+
+    # Seizure is fully within the 59 s hyp window → padded → perfect match
+    assert result["sample_results"]["sensitivity"] == pytest.approx(1.0)
+    assert result["sample_results"]["precision"] == pytest.approx(1.0)
+
+
+def test_duration_tolerance_hyp_longer_within_tolerance(tmp_path):
+    """Hyp file 1 s longer than ref is truncated and scored normally."""
+    make_tsv(tmp_path / "ref" / "sub-001" / "rec.tsv", [(10, 5)], recording_duration=60)
+    make_tsv(tmp_path / "hyp" / "sub-001" / "rec.tsv", [(10, 5)], recording_duration=61)
+
+    result = evaluate_dataset(
+        tmp_path / "ref", tmp_path / "hyp", tmp_path / "out.json",
+        duration_tolerance=1.0,
+    )
+
+    assert result["sample_results"]["sensitivity"] == pytest.approx(1.0)
+    assert result["sample_results"]["precision"] == pytest.approx(1.0)
+
+
+def test_duration_tolerance_hyp_exceeds_tolerance(tmp_path):
+    """Hyp file 5 s shorter than ref with tolerance=1.0 is treated as zeros (no crash)."""
+    make_tsv(tmp_path / "ref" / "sub-001" / "rec.tsv", [(10, 5)], recording_duration=60)
+    make_tsv(tmp_path / "hyp" / "sub-001" / "rec.tsv", [(10, 5)], recording_duration=55)
+
+    result = evaluate_dataset(
+        tmp_path / "ref", tmp_path / "hyp", tmp_path / "out.json",
+        duration_tolerance=1.0,
+    )
+
+    assert (tmp_path / "out.json").exists()
+    assert result["sample_results"]["sensitivity"] == pytest.approx(0.0)
+
+
+def test_duration_tolerance_default_no_adjustment(tmp_path):
+    """Default tolerance=0.0 does not adjust a 1 s mismatch; file is treated as zeros."""
+    make_tsv(tmp_path / "ref" / "sub-001" / "rec.tsv", [(10, 5)], recording_duration=60)
+    make_tsv(tmp_path / "hyp" / "sub-001" / "rec.tsv", [(10, 5)], recording_duration=59)
+
+    result = evaluate_dataset(
+        tmp_path / "ref", tmp_path / "hyp", tmp_path / "out.json",
+    )
+
+    assert (tmp_path / "out.json").exists()
+    assert result["sample_results"]["sensitivity"] == pytest.approx(0.0)

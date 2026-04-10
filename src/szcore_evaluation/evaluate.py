@@ -55,7 +55,11 @@ class Result(scoring.Scoring):
 
 
 def evaluate_dataset(
-    reference: Path, hypothesis: Path, outFile: Path, avg_per_subject=True
+    reference: Path,
+    hypothesis: Path,
+    outFile: Path,
+    avg_per_subject=True,
+    duration_tolerance: float = 0.0,
 ) -> dict:
     """
     Compares two sets of seizure annotations accross a full dataset.
@@ -66,6 +70,12 @@ def evaluate_dataset(
     outFile (Path): The path to the output JSON file where the results are saved.
     avg_per_subject (bool): Whether to compute average scores per subject or
                             average across the full dataset.
+    duration_tolerance (float): Maximum allowed duration difference in seconds
+                                between a hypothesis and its reference file.
+                                When the hypothesis is shorter by at most this
+                                amount it is zero-padded to match; when longer
+                                it is truncated. Files outside tolerance are
+                                treated as all-zero predictions. Default: 0.0.
 
     Returns:
     dict. return the evaluation result. The dictionary contains the following
@@ -91,9 +101,21 @@ def evaluate_dataset(
             # Load hypothesis
             hyp_tsv = Path(hypothesis) / ref_tsv.relative_to(reference)
             if hyp_tsv.exists():
-                hyp = Annotations.loadTsv(hyp_tsv)
-                try: 
-                    hyp = Annotation(hyp.getMask(FS), FS)
+                try:
+                    hyp = Annotations.loadTsv(hyp_tsv)
+                    hyp_mask = hyp.getMask(FS)
+                    ref_len = len(ref.mask)
+                    hyp_len = len(hyp_mask)
+                    if hyp_len != ref_len:
+                        diff = abs(hyp_len - ref_len) / FS
+                        if diff <= duration_tolerance:
+                            if hyp_len < ref_len:
+                                hyp_mask = np.concatenate(
+                                    [hyp_mask, np.zeros(ref_len - hyp_len, dtype=bool)]
+                                )
+                            else:
+                                hyp_mask = hyp_mask[:ref_len]
+                    hyp = Annotation(hyp_mask, FS)
                 except IndexError as e:
                     print(f"Error in {hyp_tsv}: {e}")
                     hyp = Annotation(np.zeros_like(ref.mask), ref.fs)
