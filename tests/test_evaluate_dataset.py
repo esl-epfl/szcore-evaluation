@@ -10,7 +10,6 @@ import pytest
 
 from szcore_evaluation.evaluate import evaluate_dataset
 
-
 METRICS = ["sensitivity", "precision", "f1", "fpRate"]
 
 

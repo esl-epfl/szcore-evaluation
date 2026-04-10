@@ -1,5 +1,6 @@
 if __name__ == "__main__":
     import argparse
+
     from szcore_evaluation.evaluate import evaluate_dataset
 
     parser = argparse.ArgumentParser(

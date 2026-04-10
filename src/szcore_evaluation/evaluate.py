@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from epilepsy2bids.annotations import Annotations
 import numpy as np
+from epilepsy2bids.annotations import Annotations
 from timescoring import scoring
 from timescoring.annotations import Annotation
 

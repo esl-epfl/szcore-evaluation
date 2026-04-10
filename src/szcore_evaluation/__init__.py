@@ -1,2 +1,3 @@
-def hello() -> str:
-    return "Hello from szcore-evaluation!"
+from szcore_evaluation.evaluate import Result, evaluate_dataset
+
+__all__ = ["Result", "evaluate_dataset"]

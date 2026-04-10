@@ -7,11 +7,10 @@ import math
 
 import numpy as np
 import pytest
-
-from timescoring.annotations import Annotation
 from timescoring import scoring
-from szcore_evaluation.evaluate import Result
+from timescoring.annotations import Annotation
 
+from szcore_evaluation.evaluate import Result
 
 # ---------------------------------------------------------------------------
 # Helpers
