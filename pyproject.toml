@@ -6,7 +6,7 @@ authors = [
     { name = "Jonathan Dan", email = "jonathan.dan@epfl.ch" }
 ]
 readme = "README.md"
-requires-python = ">= 3.12"
+requires-python = ">= 3.10"
 dependencies = [
     "epilepsy2bids>=0.0.7",
     "numpy>=1.26.4",
