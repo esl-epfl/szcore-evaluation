@@ -7,16 +7,16 @@ from timescoring import scoring
 from timescoring.annotations import Annotation
 
 
-class Result(scoring._Scoring):
-    """Helper class built on top of scoring._Scoring that implements the sum
+class Result(scoring.Scoring):
+    """Helper class built on top of scoring.Scoring that implements the sum
     operator between two scoring objects. The sum corresponds to the
     concatenation of both objects.
     Args:
-        scoring (scoring._Scoring): initialized as None (all zeros) or from a
-                                    scoring._Scoring object.
+        scoring (scoring.Scoring): initialized as None (all zeros) or from a
+                                   scoring.Scoring object.
     """
 
-    def __init__(self, score: scoring._Scoring = None):
+    def __init__(self, score: scoring.Scoring = None):
         if score is None:
             self.fs = 0
             self.duration = 0
@@ -32,7 +32,7 @@ class Result(scoring._Scoring):
             self.fp = score.fp
             self.refTrue = score.refTrue
 
-    def __add__(self, other_result: scoring._Scoring):
+    def __add__(self, other_result: scoring.Scoring):
         new_result = Result()
         new_result.fs = other_result.fs
         new_result.duration = self.duration + other_result.duration
@@ -43,7 +43,7 @@ class Result(scoring._Scoring):
 
         return new_result
 
-    def __iadd__(self, other_result: scoring._Scoring):
+    def __iadd__(self, other_result: scoring.Scoring):
         self.fs = other_result.fs
         self.duration += other_result.duration
         self.numSamples += other_result.numSamples
